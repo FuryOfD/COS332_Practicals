@@ -1,0 +1,40 @@
+?The successor of IPv4 is:
+-TCP
+-Ethernet
+-IPv5
++IPv6
+-None of the above
+?DNS normally uses the following transport layer protocol
+-TCP
++UDP
+-IEEE 802.3
+-All of the above
+?The OSI Layer 7 is the:
+-Data Link Layer
+-Network Layer
+-Transport Layer
++Application Layer
+-None of the above
+?The Physical Layer of the OSI model is:
+-Layer 2
+-Layer 3
+-Layer 4
+-Layer 5
++None of the above
+?Examples of a virtual terminal protocol are:
+-Telnet
+-FTP
+-SHH
+-SMTP
++More than one of the above
+?Network architecture examples are:
+-Client-server
+-Peer-to-peer
+-N-tier
++All of the above
+?What is the name of the protocol that is used to send email?
+-HTTP
+-FTP
++SMTP
+-POP3
+-None of the above
