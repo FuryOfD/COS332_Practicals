@@ -56,7 +56,7 @@ def handle_client_connection(client_socket, questions):
         if answers[ord(user_answer) - ord('A')] == selected_question.correct_answer:
             client_socket.sendall(b"Correct answer!\n")
         else:
-            client_socket.sendall(b"Incorrect answer!\n")
+            client_socket.sendall(b"Incorrect answer!\n The correct answer is: " + selected_question.correct_answer.encode() + b"\n")
     else:
         client_socket.sendall(b"Invalid answer. Please enter A, B, C, or D.\n")
     
