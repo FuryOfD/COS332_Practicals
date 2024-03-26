@@ -81,7 +81,7 @@ def main():
 
     # Set up socket for Telnet connection
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(('localhost', 12346))
+    server_socket.bind(('localhost', 55555))
     server_socket.listen(1)
     print("Waiting for Telnet connection on port 55555...")
 
