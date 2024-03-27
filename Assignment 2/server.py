@@ -42,7 +42,7 @@ total = 0  # Initialize total
 
 # Function to handle a client's connection
 def handle_client_connection(client_socket, questions):
-    global score, total  # Declare score and total as global variables
+    global score, total  # Declare score and total as global variable
     
     selected_question = select_question(questions)
     question_text = selected_question.question
@@ -50,17 +50,22 @@ def handle_client_connection(client_socket, questions):
     client_socket.sendall(question_text.encode() + b'\n')
     for i, answer in enumerate(answers):
         client_socket.sendall(f"{chr(65 + i)}. {answer}\n".encode())
-    
-    question = b"Enter your answer (A/B/C/D"
+
+    possible_options = ['A', 'B', 'C', 'D']
+
     if len(answers) == 5:
-        question += b"/E"
-    question += b"): "
+        possible_options.append('E')
+
+    question = "Enter your answer ("
+    for i in range(len(answers)):
+        question += possible_options[i] + '/'
+    question = question[:-1] + ") "
     client_socket.sendall(question)
     
     # Receive and process user's answer
     user_answer = client_socket.recv(1024).decode().strip().upper()
     
-    if user_answer in ['A', 'B', 'C', 'D', 'E']:
+    if user_answer in possible_options:
         if answers[ord(user_answer) - ord('A')] == selected_question.correct_answer:
             client_socket.sendall(b"Correct answer!\n")
             score += 1
