@@ -36,6 +36,13 @@ total = 0
 
 break_line = "----------------------------- \n"
 
+    
+def clear_screen():
+    return "\033[2J"
+    
+def move_cursor(x, y):
+    return f"\033[{y};{x}H"
+
 # Function to handle a client's connection
 def handle_client_connection(client_socket, questions):
     global score, total 
@@ -79,6 +86,8 @@ def handle_client_connection(client_socket, questions):
     if response == 'y':
         handle_client_connection(client_socket, questions)
     else:
+        client_socket.sendall(clear_screen().encode())
+        client_socket.sendall(break_line.encode())
         client_socket.sendall(f"Your final score is: {score}/{total}\n".encode())
         client_socket.sendall(b"Thank you for playing! Goodbye.\n")
         client_socket.close()
@@ -99,6 +108,7 @@ def main():
     while True:
         client_socket, address = server_socket.accept()
         print("Connection from:", address)
+        
         handle_client_connection(client_socket, questions)
 
 if __name__ == "__main__":
