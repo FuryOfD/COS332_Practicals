@@ -90,6 +90,8 @@ def handle_client_connection(client_socket, questions):
         client_socket.sendall(break_line.encode())
         client_socket.sendall(f"Your final score is: {score}/{total}\n".encode())
         client_socket.sendall(b"Thank you for playing! Goodbye.\n")
+        score = 0
+        total = 0
         client_socket.close()
 
 def main():
@@ -108,7 +110,7 @@ def main():
     while True:
         client_socket, address = server_socket.accept()
         print("Connection from:", address)
-        
+        client_socket.sendall(clear_screen().encode())
         handle_client_connection(client_socket, questions)
 
 if __name__ == "__main__":
