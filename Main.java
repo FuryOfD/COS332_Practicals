@@ -5,7 +5,12 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) {
         try{
-            ServerSocket server = new ServerSocket(8080);
+            ServerSocket server = new ServerSocket(55555);
+
+            while (true){
+                Socket client = server.accept();
+                
+            }
 
         }
         catch(Exception e){

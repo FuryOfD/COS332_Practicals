@@ -48,4 +48,10 @@ public class Fib {
         num1 = prevFib;
         WriteIntoDatafile();
     }
+
+    //return the 3 numbers
+    public String getNumbers() {
+        return "<tr><td>" + num1 + "</td><td>" + num2 + "</td><td>" + num3 + "</td></tr>";
+    }
+
 }
