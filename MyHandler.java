@@ -1,17 +1,27 @@
 import java.io.*;
 import com.sun.net.httpserver.*;
-import java.net.*;
-import java.util.*;
 
 public class MyHandler implements HttpHandler{
+    private Fib fib;
+
+    public MyHandler() {
+        fib = new Fib();
+    }
+
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        String path = exchange.getRequestURI().getPath();
+        if (path.equals("/next")) {
+            fib.CalculateNextFib();
+        } else if (path.equals("/prev")) {
+            fib.CalculatePrevFib();
+        }
+
         //set response headers
         exchange.getResponseHeaders().set("Content-Type", "text/html");
         exchange.sendResponseHeaders(200, 0);
 
-        Fib fib = new Fib();
         String response = fib.getNumbers();
 
         OutputStream os = exchange.getResponseBody();
@@ -27,16 +37,13 @@ public class MyHandler implements HttpHandler{
         out.println(response);
 
         out.println("</table>");
-        out.println("<a href=\"/next\">Next</a>");
         out.println("<a href=\"/prev\">Previous</a>");
+        out.println("<a href=\"/next\">Next</a>");
         out.println("</body>");
         out.println("</html>");
 
         out.flush();
         out.close();
         os.close();
-        
-
     }
-    
 }

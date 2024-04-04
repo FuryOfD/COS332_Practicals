@@ -18,6 +18,6 @@ public class Server {
     }
 
     public static void main(String[] args) {
-        initiliazeServer(55555);
+        initiliazeServer(55554);
     }
 }

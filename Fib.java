@@ -4,7 +4,10 @@ public class Fib {
     private int num1, num2, num3;
 
     public Fib() {
-        //read from numbers.txt
+        ReadFromDataFile();
+    }
+
+    private void ReadFromDataFile() {
         try {
             BufferedReader reader = new BufferedReader(new FileReader("numbers.txt"));
             num1 = Integer.parseInt(reader.readLine());
@@ -32,8 +35,9 @@ public class Fib {
     }
 
     public void CalculateNextFib() {
+        ReadFromDataFile();
         //calculate next fib number
-        int nextFib = num1 + num2 ;
+        int nextFib = num2 + num3;
         num1 = num2;
         num2 = num3;
         num3 = nextFib;
@@ -41,8 +45,9 @@ public class Fib {
     }
 
     public void CalculatePrevFib() {
+        ReadFromDataFile();
         //calculate previous fib number
-        int prevFib = num3 - num2;
+        int prevFib = num2 - num1;
         num3 = num2;
         num2 = num1;
         num1 = prevFib;
@@ -51,6 +56,7 @@ public class Fib {
 
     //return the 3 numbers
     public String getNumbers() {
+        ReadFromDataFile();
         return "<tr><td>" + num1 + "</td><td>" + num2 + "</td><td>" + num3 + "</td></tr>";
     }
 
