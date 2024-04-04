@@ -51,6 +51,12 @@ public class Fib {
         num3 = num2;
         num2 = num1;
         num1 = prevFib;
+        if(num2 < num1) {
+            int temp = num1;
+            num1 = num2;
+            num2 = temp;
+        }
+        
         WriteIntoDatafile();
     }
 
