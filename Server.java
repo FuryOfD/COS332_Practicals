@@ -14,10 +14,22 @@ public class Server {
         } 
         catch (IOException e) {
             e.printStackTrace();
+            try {
+                HttpServer ErrorServer = HttpServer.create(new InetSocketAddress(port), 0);
+                ErrorServer.createContext("/", new ErrorHandler());
+                ErrorServer.setExecutor(null);
+                ErrorServer.start();
+                System.out.println("Error Page started on port " + port);
+                
+            } catch (IOException e1) {
+                e1.printStackTrace();
+                System.out.println("Error creating 404 page");
+
+            }
         }
     }
 
     public static void main(String[] args) {
-        initiliazeServer(55555);
+        initiliazeServer(55554);
     }
 }
