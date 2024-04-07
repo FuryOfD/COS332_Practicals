@@ -17,6 +17,11 @@ public class MyHandler implements HttpHandler{
         } else if (path.equals("/prev")) {
             fib.CalculatePrevFib();
         }
+        else if (path.equals("/refresh")) {
+            fib.Refresh();
+        }
+
+        
 
         exchange.getResponseHeaders().set("Content-Type", "text/html");
         exchange.sendResponseHeaders(200, 0);
@@ -88,6 +93,9 @@ public class MyHandler implements HttpHandler{
         out.println("<p class=\"prev\"> <a href=\"/prev\">Previous</a> </p>");
         out.println("<p class=\"nothing\">    </p>");
         out.println("<p class=\"next\"> <a href=\"/next\">Next</a> </p>");
+        out.println("</div>");
+        out.println("<div class=\"center\">");
+        out.println("<p class=\"prev\"> <a href=\"/refresh\">Refresh</a> </p>");
         out.println("</div>");
         out.println("</body>");
         out.println("</html>");

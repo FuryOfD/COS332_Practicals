@@ -21,7 +21,6 @@ public class Fib {
     }
 
     private void WriteIntoDatafile() {
-        //write to numbers.txt
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("numbers.txt"));
             writer.write(num1 + "\n");
@@ -46,7 +45,6 @@ public class Fib {
 
     public void CalculatePrevFib() {
         ReadFromDataFile();
-        //calculate previous fib number
         int prevFib = num2 - num1;
         num3 = num2;
         num2 = num1;
@@ -60,7 +58,13 @@ public class Fib {
         WriteIntoDatafile();
     }
 
-    //return the 3 numbers
+    public void Refresh() {
+        num1 = 0;
+        num2 = 1;
+        num3 = 1;
+        WriteIntoDatafile();
+    }
+
     public String getNumbers() {
         ReadFromDataFile();
         return "<tr><td>" + num1 + "</td><td>" + num2 + "</td><td>" + num3 + "</td></tr>";
