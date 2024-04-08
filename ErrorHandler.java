@@ -17,6 +17,7 @@ public class ErrorHandler implements HttpHandler{
         out.println("<body>");
         out.println("<h1>404 Not Found</h1>");
         out.println("<p>The page you are looking for is not found.</p>");
+        out.println("<a href=\"/\">Go back to the main page</a>");
         out.println("</body>");
         out.println("</html>");
 

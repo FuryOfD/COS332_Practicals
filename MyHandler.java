@@ -3,9 +3,11 @@ import com.sun.net.httpserver.*;
 
 public class MyHandler implements HttpHandler{
     private Fib fib;
+    private ErrorHandler errorHandler;
 
     public MyHandler() {
         fib = new Fib();
+        errorHandler = new ErrorHandler();
     }
 
 
@@ -19,6 +21,9 @@ public class MyHandler implements HttpHandler{
         }
         else if (path.equals("/refresh")) {
             fib.Refresh();
+        } else if (!path.equals("/")) {
+            errorHandler.handle(exchange);
+            return;
         }
 
         
