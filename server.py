@@ -32,39 +32,19 @@ def read_questions(filename):
 def select_question(questions):
     return random.choice(questions)
 
-# html_template = """<!DOCTYPE html>
-# <html>
-#     <head>
-#         <title>COS 332 Assignment 4</title>
-#     </head>
-#     <body>
-#         <h1>Quiz</h1>
-#         <h2>{question}</h2>
-#         <form method="post" action="/questionpage">
-#             {answers}
-#             <input type="submit" value="Submit">
-#         </form>
-#     </body>
-# </html>
-# """
-
-html_template = """
-<!DOCTYPE html>
+html_template = """<!DOCTYPE html>
 <html>
-<head>
-    <title>Quiz</title>
-</head>
-<body>
-    <h1>Quiz</h1>
-    <form method="post" action="/submit">
-        <p>{question}</p>
-        {answers}
-        <input type="submit" value="Submit">
-    </form>
-    <form method="get" action="/page">
-        <input type="submit" value="Go to Another Page">
-    </form>
-</body>
+    <head>
+        <title>COS 332 Assignment 4</title>
+    </head>
+    <body>
+        <h1>Quiz</h1>
+        <h2>{question}</h2>
+        <form method="post" action="/questionpage">
+            {answers}
+            <input type="submit" value="Submit">
+        </form>
+    </body>
 </html>
 """
 
@@ -79,6 +59,11 @@ html_response = """
                     <h2>{response}</h2>
                     <form method = "get" action = "/responsepage">
                         <input type="submit" value="Next Question">
+                    </form>
+                    
+                    <form method = "get" action = "/endquiz">
+                        <input type="submit" value="End quiz">
+                    </form>
                 </body>
 """
 
@@ -91,13 +76,15 @@ def generate_html(answers):
 questions = read_questions("questions.txt")
 
 class QuizHandler(BaseHTTPRequestHandler):
+    correct = None
+
     def do_GET(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
 
-        #questions = read_questions("questions.txt")
         question = select_question(questions)
+        self.correct = question.correct_answer
         
         #answers = [(i, answer) for i, answer in enumerate(question.answers)]
         answers_html = generate_html(question.answers)
@@ -110,7 +97,8 @@ class QuizHandler(BaseHTTPRequestHandler):
         parsed_data = parse_qs(post_data)
         user_answer = parsed_data['answer'][0]
         
-        if user_answer == "correct":
+        
+        if user_answer == self.correct:
             response = "Correct!"
         else:
             response = "Incorrect!"
@@ -118,13 +106,13 @@ class QuizHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
+        html = html_response.format(response=response)
         
-        
-        self.wfile.write(response.encode())
+        self.wfile.write(html.encode())
 
 def main():
     #questions = read_questions("questions.txt")
-    question = select_question(questions)
+    
 
     for question in questions:
         print("Question:", question.question)
