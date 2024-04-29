@@ -1,3 +1,4 @@
+from emailServer import emailPerson
 import socket
 import random
 from urllib.parse import unquote
@@ -104,6 +105,13 @@ class QuizHandler:
             html_response = html_response.encode()
             QuizHandler.correct = 0
             QuizHandler.total = 0
+            
+            
+            ## where email will be sent to the user
+            message = f"Correct answers: {QuizHandler.correct} out of {QuizHandler.total}"
+            name = "Quiz Tester"
+            emailPerson(message, name)
+            
             return html_response
         else:
             return self.not_found()
