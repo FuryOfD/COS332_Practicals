@@ -22,25 +22,25 @@ def emailPerson(message, name):
     smtpSocket.connect((server, port))
     
     response = smtpSocket.recv(1024).decode()
-    print(response)
+    print("Phase 1 " + response)
     
     smtpSocket.send(f"EHLO localhost\r\n".encode())
     response = smtpSocket.recv(1024).decode()
-    print(response)
+    print("Phase 2 " +  response)
 
     smtpSocket.send("STARTTLS\r\n".encode())
     response = smtpSocket.recv(1024).decode()
-    print(response)
+    print("Phase 3 " + response)
     
     smtpSocket = ssl.wrap_socket(smtpSocket)
     
-    smtpSocket.send(f"EHLO {name}\r\n".encode())
+    smtpSocket.send(f"EHLO localhost\r\n".encode())
     response = smtpSocket.recv(1024).decode()
-    print(response)
+    print("Phase 4 " + response)
     
     smtpSocket.send(f"AUTH LOGIN\r\n".encode())
     response = smtpSocket.recv(1024).decode()
-    print(response)
+    print("Phase 5 " + response)
     
     b64_user = base64.b64encode(sender_email.encode()).decode()   
     b64_password = base64.b64encode(password.encode()).decode()
@@ -53,15 +53,15 @@ def emailPerson(message, name):
     
     smtpSocket.send(f"MAIL FROM: <{sender_email}>\r\n".encode())
     response = smtpSocket.recv(1024).decode()
-    print(response)
+    print("Phase 6 " + response)
     
     smtpSocket.send(f"RCPT TO: <{receiver_email}>\r\n".encode())
     response = smtpSocket.recv(1024).decode()
-    print(response)
+    print("Phase 7 " + response)
     
     smtpSocket.send("DATA\r\n".encode())
     response = smtpSocket.recv(1024).decode()
-    print(response)
+    print("Phase 6 " + response)
     
     smtpSocket.send(f"Subject: COS 332 Assignment 6 {time}\r\n".encode())
     smtpSocket.send(b'\r\n')
@@ -70,13 +70,13 @@ def emailPerson(message, name):
     smtpSocket.send(f"From : {sender_email}\r\n".encode())
     
     response = smtpSocket.recv(1024).decode()
-    print(response)
+    print("Phase 9 " + response)
     
     smtpSocket.send("QUIT\r\n".encode())
     response = smtpSocket.recv(1024).decode()
-    print(response)
+    print("Phase 10 " + response)
     
     smtpSocket.close()
-    print("Email sent successfully")
+    #print("Email sent successfully")
     
     
