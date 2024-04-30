@@ -1,13 +1,14 @@
 import socket
 import ssl
 import base64
+import datetime
 
 
 def emailPerson(message, name):
     server = "smtp.gmail.com"
-    port = 25
-    # port = 587
-    
+    # port = 25
+    port = 587
+    time = datetime.datetime.now()
     # message = "Check your email for the quiz results."
     # name = "Dharsh"
     
@@ -23,19 +24,19 @@ def emailPerson(message, name):
     response = smtpSocket.recv(1024).decode()
     print(response)
     
-    smtpSocket.send(f"EHLO {name}\r\n".encode())
+    smtpSocket.send(f"EHLO Email Provider\r\n".encode())
     response = smtpSocket.recv(1024).decode()
     print(response)
 
-    smtpSocket.send("STARTTLS\r\n".encode())
-    response = smtpSocket.recv(1024).decode()
-    print(response)
+    # smtpSocket.send("STARTTLS\r\n".encode())
+    # response = smtpSocket.recv(1024).decode()
+    # print(response)
     
-    smtpSocket = ssl.wrap_socket(smtpSocket)
+    # smtpSocket = ssl.wrap_socket(smtpSocket)
     
-    smtpSocket.send(f"EHLO {name}\r\n".encode())
-    response = smtpSocket.recv(1024).decode()
-    print(response)
+    # smtpSocket.send(f"EHLO {name}\r\n".encode())
+    # response = smtpSocket.recv(1024).decode()
+    # print(response)
     
     smtpSocket.send(f"AUTH LOGIN\r\n".encode())
     response = smtpSocket.recv(1024).decode()
@@ -62,7 +63,7 @@ def emailPerson(message, name):
     response = smtpSocket.recv(1024).decode()
     print(response)
     
-    smtpSocket.send(f"Subject: COS 332 Assignment 6\r\n".encode())
+    smtpSocket.send(f"Subject: COS 332 Assignment 6 {time}\r\n".encode())
     smtpSocket.send(b'\r\n')
     smtpSocket.send(f"{message}\r\n".encode())
     smtpSocket.send(b'\r\n')

@@ -109,7 +109,7 @@ class QuizHandler:
             
             ## where email will be sent to the user
             message = f"Correct answers: {QuizHandler.correct} out of {QuizHandler.total}"
-            name = "Quiz Tester"
+            name = "Quiz Tester" #can ask user to input their name
             emailPerson(message, name)
             
             return html_response
