@@ -24,19 +24,19 @@ def emailPerson(message, name):
     response = smtpSocket.recv(1024).decode()
     print(response)
     
-    smtpSocket.send(f"EHLO Email Provider\r\n".encode())
+    smtpSocket.send(f"EHLO localhost\r\n".encode())
     response = smtpSocket.recv(1024).decode()
     print(response)
 
-    # smtpSocket.send("STARTTLS\r\n".encode())
-    # response = smtpSocket.recv(1024).decode()
-    # print(response)
+    smtpSocket.send("STARTTLS\r\n".encode())
+    response = smtpSocket.recv(1024).decode()
+    print(response)
     
-    # smtpSocket = ssl.wrap_socket(smtpSocket)
+    smtpSocket = ssl.wrap_socket(smtpSocket)
     
-    # smtpSocket.send(f"EHLO {name}\r\n".encode())
-    # response = smtpSocket.recv(1024).decode()
-    # print(response)
+    smtpSocket.send(f"EHLO {name}\r\n".encode())
+    response = smtpSocket.recv(1024).decode()
+    print(response)
     
     smtpSocket.send(f"AUTH LOGIN\r\n".encode())
     response = smtpSocket.recv(1024).decode()
