@@ -4,11 +4,11 @@ import base64
 import datetime
 
 
-def emailPerson(message, name):
+def emailPerson(message, time):
     server = "smtp.gmail.com"
     # port = 25
     port = 587
-    time = datetime.datetime.now()
+    
     # message = "Check your email for the quiz results."
     # name = "Dharsh"
     

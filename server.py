@@ -3,6 +3,8 @@ import socket
 import random
 from urllib.parse import unquote
 
+import datetime
+
 class Question:
     def __init__(self, question, answers, correct_answer):
         self.question = question
@@ -109,8 +111,9 @@ class QuizHandler:
             
             ## where email will be sent to the user
             message = f"Correct answers: {QuizHandler.correct} out of {QuizHandler.total}"
-            name = "Quiz Tester" #can ask user to input their name
-            emailPerson(message, name)
+            # name = "Quiz Tester" #can ask user to input their name
+            time = datetime.datetime.now()
+            emailPerson(message, time)
             
             return html_response
         else:
