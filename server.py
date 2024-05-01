@@ -1,4 +1,4 @@
-from emailServer import emailPerson
+from emailServer import send_email
 import socket
 import random
 from urllib.parse import unquote
@@ -108,12 +108,14 @@ class QuizHandler:
             QuizHandler.correct = 0
             QuizHandler.total = 0
             
-            
-            ## where email will be sent to the user
+
+            sender_email = "ruanrossouw58@gmail.com"
+            receiver_email = "u21459640@tuks.co.za"
+            password = "lmst ztsm rflu udks"
+            subject = "COS 332 Assignment 6"
             message = f"Correct answers: {QuizHandler.correct} out of {QuizHandler.total}"
-            # name = "Quiz Tester" #can ask user to input their name
-            time = datetime.datetime.now()
-            emailPerson(message, time)
+
+            send_email(sender_email, receiver_email, password, subject, message)
             
             return html_response
         else:
