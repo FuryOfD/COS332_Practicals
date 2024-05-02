@@ -2,6 +2,7 @@ from emailServer import send_email
 import socket
 import random
 from urllib.parse import unquote
+import urllib.parse
 
 import datetime
 
@@ -105,8 +106,15 @@ class QuizHandler:
             return html_response.encode()
         if path == '/endquiz':
             print("Correct answers: ", QuizHandler.correct, " out of ", QuizHandler.total)
-            html_response =  f"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html><html><head><title>COS 332 Assignment 4</title></head><body><h1>Quiz</h1><h2>Quiz ended</h2><h3>Correct answers: {QuizHandler.correct} out of {QuizHandler.total}</h3><form method='GET' action='/'><input type='submit' value='Start quiz'></form><form method='GET' action='/email'><input type='submit' value='Email quiz'></form></body></html>"
-            html_response = html_response.encode()
+            html_response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
+            html_response += "<!DOCTYPE html><html><head><title>COS 332 Assignment 4</title></head>"
+            html_response += "<body><h1>Quiz</h1><h2>Quiz ended</h2>"
+            html_response += f"<h3>Correct answers: {QuizHandler.correct} out of {QuizHandler.total}</h3>"
+            html_response += "<form method='GET' action='/'>"
+            html_response += "<input type='submit' value='Start quiz'></form>"
+            html_response += "<h3>Enter your email to receive quiz results:</h3>"
+            html_response += "<form method='POST' action='/email'><input type='text' name='email' placeholder='Your Email'>"
+            html_response += "<input type='submit' value='Send'></form></body></html>"
             
             QuizHandler.emailCorrect = QuizHandler.correct
             QuizHandler.emailTotal = QuizHandler.total
@@ -114,22 +122,7 @@ class QuizHandler:
             QuizHandler.correct = 0
             QuizHandler.total = 0
             
-            return html_response
-        if path == '/email':
-            sender_email = "ruanrossouw58@gmail.com"
-            receiver_email = "work.dharsh@gmail.com"
-            password = "lmst ztsm rflu udks"
-            subject = "COS 332 Assignment 6"
-            message = f"Quiz results: Correct answers: {QuizHandler.emailCorrect} out of {QuizHandler.emailTotal}"
-            send_email(sender_email, receiver_email, password, subject, message)
-            
-            QuizHandler.emailCorrect = 0
-            QuizHandler.emailTotal = 0
-            
-            html_response = f"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html><html><head><title>COS 332 Assignment 4</title></head><body><h1>Quiz</h1><h2>Quiz results emailed</h2><form method='GET' action='/'><input type='submit' value='Start quiz'></form></body></html>"
-            html_response = html_response.encode()
-            return html_response
-
+            return html_response.encode() 
         else:
             return self.not_found()
         
@@ -158,6 +151,26 @@ class QuizHandler:
                 response = "Incorrect! The correct answer is: " + correct_answer
             html_response = f"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html><html><head><title>COS 332 Assignment 4</title></head><body><h1>Quiz</h1><h2>{response}</h2><form method='GET' action='/'><input type='submit' value='Next Question'></form><form method='GET' action='/endquiz'><input type='submit' value='End quiz'></form></body></html>"
             return html_response.encode()
+        elif path == '/email':
+            parsed_body = dict(x.split("=") for x in body.split("&"))
+        
+            if 'email' not in parsed_body:
+                return self.invalid_request()
+        
+            # Decode the URL-encoded email address
+            receiver_email = urllib.parse.unquote(parsed_body['email'])
+
+            sender_email = "ruanrossouw58@gmail.com"
+            password = "lmst ztsm rflu udks"
+            subject = "COS 332 Assignment 6"
+            message = f"Quiz results: Correct answers: {QuizHandler.emailCorrect} out of {QuizHandler.emailTotal}"
+
+            html_response = send_email(sender_email, receiver_email, password, subject, message)
+            QuizHandler.emailCorrect = 0
+            QuizHandler.emailTotal = 0
+
+            html_response = html_response.encode()
+            return html_response
         else:
             return self.not_found()
 
