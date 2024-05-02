@@ -105,17 +105,19 @@ class QuizHandler:
             print("Correct answers: ", QuizHandler.correct, " out of ", QuizHandler.total)
             html_response =  f"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html><html><head><title>COS 332 Assignment 4</title></head><body><h1>Quiz</h1><h2>Quiz ended</h2><h3>Correct answers: {QuizHandler.correct} out of {QuizHandler.total}</h3><form method='GET' action='/'><input type='submit' value='Start quiz'></form></body></html>"
             html_response = html_response.encode()
-            QuizHandler.correct = 0
-            QuizHandler.total = 0
+           
             
 
             sender_email = "ruanrossouw58@gmail.com"
-            receiver_email = "u21459640@tuks.co.za"
+            receiver_email = "work.dharsh@gmail.com"
             password = "lmst ztsm rflu udks"
             subject = "COS 332 Assignment 6"
             message = f"Correct answers: {QuizHandler.correct} out of {QuizHandler.total}"
 
             send_email(sender_email, receiver_email, password, subject, message)
+            
+            QuizHandler.correct = 0
+            QuizHandler.total = 0
             
             return html_response
         else:
