@@ -1,30 +1,56 @@
-import poplib
-from email import parser
+import socket 
+import ssl
+from email.parser import Parser
 
-def checkingEmail():
-    pop_server = 'pop.gmail.com'
-    receiver_email = 'work.dharsh@gmail.com'
-    password = 'brmo nosk unmr zglg'
+def checkingEmail(username, password):
+    pop_server = "pop.gmail.com"
+    pop_port = 995
     
-    pop_con = poplib.POP3_SSL(pop_server)
-    pop_con.user(receiver_email)
-    pop_con.pass_(password)
-    
-    num_messages = len(pop_con.list()[1])
-    
-    # Printing the most recent email
-    message = pop_con.retr(num_messages)[1]
-    message = b'\n'.join(message).decode()
-    message = parser.Parser().parsestr(message)
-    
-    print("Subject:", message['subject'])
-    print("From:", message['from'])
-    print("To:", message['to'])
-    
-    pop_con.quit()
-    
+    # Establish a socket connection to the POP server
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as popSocket:
+        popSocket.connect((pop_server, pop_port))
+        
+        # Upgrade the socket to SSL/TLS
+        context = ssl.create_default_context()
+        pop_socket_ssl = context.wrap_socket(popSocket, server_hostname=pop_server)
+        
+        # Receive the server's banner
+        response = pop_socket_ssl.recv(4096).decode()
+        print(response)
+        
+        # Send username
+        pop_socket_ssl.sendall(f'USER {username}\r\n'.encode())
+        print(pop_socket_ssl.recv(4096).decode())
 
-checkingEmail()
-    
-    
-    
+        # Send password
+        pop_socket_ssl.sendall(f'PASS {password}\r\n'.encode())
+        print(pop_socket_ssl.recv(4096).decode())
+
+        # Send STAT command to get the total number of messages and the total size of the mailbox
+        pop_socket_ssl.sendall(b'STAT\r\n')
+        response = pop_socket_ssl.recv(4096).decode()
+        num_messages, _ = response.split()[1:]
+
+        # Fetch the most recent email
+        pop_socket_ssl.sendall(f'RETR {num_messages}\r\n'.encode())
+        email_data = b''
+        while True:
+            data = pop_socket_ssl.recv(4096)
+            if not data:
+                break
+            email_data += data
+
+        # Parse the email
+        email_text = email_data.decode()
+        msg = Parser().parsestr(email_text)
+
+        # Process the most recent email
+        print("Subject:", msg['Subject'])
+        print("From:", msg['From'])
+        print("To:", msg['To'])
+
+        # Close connection
+        pop_socket_ssl.sendall(b'QUIT\r\n')
+        pop_socket_ssl.close()
+        
+checkingEmail("work.dharsh@gmail.com","brmo nosk unmr zglg")
