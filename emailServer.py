@@ -3,11 +3,11 @@ import ssl
 import base64
 
 def send_email():
-    sender_email = 'work.dharsh@gmail.com'
-    password = 'brmo nosk unmr zglg'
+    sender_email = "ruanrossouw58@gmail.com"
+    password = "lmst ztsm rflu udks"
     
-    receiver_email = 'dharshanng@gmail.com'
-    bcc_email = 'ruanrossouw58@gmail.com'
+    receiver_email = 'work.dharsh@gmail.com'
+    bcc_email = 'dharshanng@gmail.com'
     
     subject = 'Test Email'
     message = 'This is a test email sent from a Python script.'
@@ -78,6 +78,9 @@ def send_email():
         smtpSocket.send(f"Subject: {subject}\r\n".encode())
         smtpSocket.send(f"From: {sender_email}\r\n".encode())
         smtpSocket.send(f"To: {receiver_email}\r\n".encode())
+        # Cc Bcc email addresses
+        smtpSocket.send(f"Cc: {bcc_email}\r\n".encode())
+        # smtpSocket.send(f"Bcc: {bcc_email}\r\n".encode())
         smtpSocket.send(b"\r\n")
         smtpSocket.send(f"{message}\r\n".encode())
 
