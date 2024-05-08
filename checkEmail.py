@@ -69,4 +69,4 @@ def checkingEmail(username, password):
         pop_socket_ssl.sendall(b'QUIT\r\n')
         pop_socket_ssl.close()
         
-checkingEmail("work.dharsh@gmail.com","brmo nosk unmr zglg")
+checkingEmail("u21459640@tuks.co.za","glun ydwp hpmb zfaj")
