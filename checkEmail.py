@@ -45,12 +45,12 @@ def retrieve_email_headers(username, password, host):
 
                 # Retrieve headers and body for all emails
                 for i in range(1, num_emails + 1):
-                    # Send TOP command to retrieve headers
+                    # Send TOP command to retrieve headers and part of the body
                     ssock.sendall(f"TOP {i} 0\r\n".encode())
                     response = ssock.recv(1024).decode()
                     print(response)
 
-                    # Parse email headers
+                    # Parse email headers and body
                     headers_text = b''
                     while True:
                         line = ssock.recv(1024)
@@ -66,7 +66,7 @@ def retrieve_email_headers(username, password, host):
                     from_address = decode_email_header(headers.get('From', ''))
                     to_address = decode_email_header(headers.get('To', ''))
                     bcc_address = decode_email_header(headers.get('Bcc', ''))
-                    
+
                     # Retrieve the email body
                     ssock.sendall(f"RETR {i}\r\n".encode())
                     response = ssock.recv(1024).decode()
