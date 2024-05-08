@@ -48,7 +48,6 @@ def send_email():
             smtpSocket.send(b"AUTH LOGIN\r\n")
             response = smtpSocket.recv(1024).decode()
             print(response)
-            
 
             # Send base64-encoded username
             smtpSocket.send(base64.b64encode(sender_email.encode()) + b"\r\n")
@@ -81,11 +80,12 @@ def send_email():
             print(response)
             
             # Send email headers and content
-            smtpSocket.send(f"Subject: {subject}\r\n".encode())
-            smtpSocket.send(f"From: {sender_email}\r\n".encode())
-            smtpSocket.send(f"To: {receiver_email}\r\n".encode())
-            # No need to include Bcc in headers here
-
+            headers = f"Subject: {subject}\r\n"
+            headers += f"From: {sender_email}\r\n"
+            headers += f"To: {receiver_email}\r\n"
+            headers += f"Bcc: {bcc_email}\r\n"  # Include Bcc header
+            
+            smtpSocket.send(headers.encode())
             smtpSocket.send(b"\r\n")
             smtpSocket.send(f"{message}\r\n".encode())
 

@@ -1,72 +1,106 @@
-import socket 
 import ssl
-from email.parser import Parser
+import socket
+from email.parser import BytesParser
+from email.header import decode_header
 
-def checkingEmail(username, password):
-    pop_server = "pop.gmail.com"
-    pop_port = 995
-    
-    # Establish a socket connection to the POP server
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as popSocket:
-        popSocket.connect((pop_server, pop_port))
-        
-        # Upgrade the socket to SSL/TLS
+def decode_email_header(header):
+    """Decode email header into readable string."""
+    decoded = []
+    for part, encoding in decode_header(header):
+        if isinstance(part, bytes):
+            # Decode bytes to str using specified encoding
+            decoded.append(part.decode(encoding or 'utf-8'))
+        else:
+            decoded.append(part)
+    return ''.join(decoded)
+
+def retrieve_email_headers(username, password, host):
+    try:
+        # Connect to POP3 server over SSL
         context = ssl.create_default_context()
-        pop_socket_ssl = context.wrap_socket(popSocket, server_hostname=pop_server)
-        
-        # Receive the server's banner
-        response = pop_socket_ssl.recv(4096).decode()
-        print(response)
-        
-        # Send username
-        pop_socket_ssl.sendall(f'USER {username}\r\n'.encode())
-        print(pop_socket_ssl.recv(4096).decode())
+        with socket.create_connection((host, 995)) as sock:
+            with context.wrap_socket(sock, server_hostname=host) as ssock:
+                # Receive server greeting
+                print(ssock.recv(1024).decode())
 
-        # Send password
-        pop_socket_ssl.sendall(f'PASS {password}\r\n'.encode())
-        print(pop_socket_ssl.recv(4096).decode())
+                # Send username
+                ssock.sendall(f"USER {username}\r\n".encode())
+                print(ssock.recv(1024).decode())
 
-        # # Send STAT command to get the total number of messages and the total size of the mailbox
-        # pop_socket_ssl.sendall(b'STAT\r\n')
-        # response = pop_socket_ssl.recv(4096).decode()
-        # num_messages, _ = response.split()[1:]
+                # Send password
+                ssock.sendall(f"PASS {password}\r\n".encode())
+                print(ssock.recv(1024).decode())
 
-        # # Fetch the most recent email
-        # pop_socket_ssl.sendall(f'RETR {num_messages}\r\n'.encode())
-        # email_data = b''
-        # while True:
-        #     data = pop_socket_ssl.recv(4096)
-        #     if not data:
-        #         break
-        #     email_data += data
+                # Send LIST command to get email count
+                ssock.sendall(b"LIST\r\n")
+                response = ssock.recv(1024).decode()
+                print(response)
 
-        # # Parse the email
-        # email_text = email_data.decode()
-        # msg = Parser().parsestr(email_text)
+                # Parse email count from response
+                num_emails = int(response.split()[1])
 
-        # # Process the most recent email
-        # print("Subject:", msg['Subject'])
-        # print("From:", msg['From'])
-        # print("To:", msg['To'])
-        
-        # Fetch headers of the first 5 messages
-        for i in range(1, 3):
-            pop_socket_ssl.sendall(f'TOP {i} 0\r\n'.encode())  # Get only the headers
-            headers_data = b''
-            while True:
-                data = pop_socket_ssl.recv(4096)
-                if not data or b'\r\n\r\n' in data:  # End of headers
-                    break
-                headers_data += data
-            
-            # Parse and process the headers
-            headers_text = headers_data.decode()
-            msg = Parser().parsestr(headers_text)
-            print(f"Message {i} - Subject: {msg['Subject']}, From: {msg['From']}, To: {msg['To']}")
+                if num_emails == 0:
+                    print("No emails in the mailbox.")
+                    return
 
+                # Retrieve headers and body for all emails
+                for i in range(1, num_emails + 1):
+                    # Send TOP command to retrieve headers
+                    ssock.sendall(f"TOP {i} 0\r\n".encode())
+                    response = ssock.recv(1024).decode()
+                    print(response)
 
-        # Close connection
-        pop_socket_ssl.sendall(b'QUIT\r\n')
-        pop_socket_ssl.close()
-        
-checkingEmail("u21459640@tuks.co.za","glun ydwp hpmb zfaj")
+                    # Parse email headers
+                    headers_text = b''
+                    while True:
+                        line = ssock.recv(1024)
+                        headers_text += line
+                        if b'\r\n.\r\n' in line:
+                            break
+
+                    # Parse email headers
+                    headers = BytesParser().parsebytes(headers_text)
+
+                    # Extract relevant header fields
+                    subject = decode_email_header(headers.get('Subject', ''))
+                    from_address = decode_email_header(headers.get('From', ''))
+                    to_address = decode_email_header(headers.get('To', ''))
+                    bcc_address = decode_email_header(headers.get('Bcc', ''))
+                    
+                    # Retrieve the email body
+                    ssock.sendall(f"RETR {i}\r\n".encode())
+                    response = ssock.recv(1024).decode()
+                    print(response)  # This will print the beginning of the body
+                    
+                    # Continue reading the body until the end marker
+                    body_text = b''
+                    while True:
+                        line = ssock.recv(1024)
+                        body_text += line
+                        if b'\r\n.\r\n' in line:
+                            break
+
+                    # Decode the email body
+                    body = BytesParser().parsebytes(body_text)
+
+                    # Print email headers and body
+                    print(f"Email {i} - Subject: {subject}, From: {from_address}, To: {to_address}")
+                    if bcc_address:
+                        print(f"Bcc: {bcc_address}")
+                    print("Body:")
+                    print(body.get_payload(decode=True).decode())
+
+                # Quit session
+                ssock.sendall(b"QUIT\r\n")
+                print(ssock.recv(1024).decode())
+
+    except Exception as e:
+        print(f"Error occurred: {e}")
+
+if __name__ == "__main__":
+    # Replace these credentials with your own
+    username = "u21459640@tuks.co.za"
+    password = "glun ydwp hpmb zfaj"
+    host = "pop.gmail.com"
+
+    retrieve_email_headers(username, password, host)
