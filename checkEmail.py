@@ -1,20 +1,10 @@
 import ssl
 import socket
-from email.parser import BytesParser
-from email.header import decode_header
+import time
 
-def decode_email_header(header):
-    """Decode email header into readable string."""
-    decoded = []
-    for part, encoding in decode_header(header):
-        if isinstance(part, bytes):
-            # Decode bytes to str using specified encoding
-            decoded.append(part.decode(encoding or 'utf-8'))
-        else:
-            decoded.append(part)
-    return ''.join(decoded)
+from emailServer import send_email
 
-def retrieve_email_headers(username, password, host):
+def read_email(username, password, host):
     try:
         # Connect to POP3 server over SSL
         context = ssl.create_default_context()
@@ -45,50 +35,34 @@ def retrieve_email_headers(username, password, host):
 
                 # Retrieve headers and body for all emails
                 for i in range(1, num_emails + 1):
-                    # Send TOP command to retrieve headers and part of the body
-                    ssock.sendall(f"TOP {i} 0\r\n".encode())
-                    response = ssock.recv(1024).decode()
-                    print(response)
-
-                    # Parse email headers and body
-                    headers_text = b''
-                    while True:
-                        line = ssock.recv(1024)
-                        headers_text += line
-                        if b'\r\n.\r\n' in line:
-                            break
-
-                    # Parse email headers
-                    headers = BytesParser().parsebytes(headers_text)
-
-                    # Extract relevant header fields
-                    subject = decode_email_header(headers.get('Subject', ''))
-                    from_address = decode_email_header(headers.get('From', ''))
-                    to_address = decode_email_header(headers.get('To', ''))
-                    bcc_address = decode_email_header(headers.get('Bcc', ''))
-
-                    # Retrieve the email body
+                    # Send RETR command to retrieve the entire email
                     ssock.sendall(f"RETR {i}\r\n".encode())
-                    response = ssock.recv(1024).decode()
-                    print(response)  # This will print the beginning of the body
-                    
-                    # Continue reading the body until the end marker
-                    body_text = b''
+
+                    # Read the entire email content until we find the end marker
+                    email_content = b''
                     while True:
                         line = ssock.recv(1024)
-                        body_text += line
-                        if b'\r\n.\r\n' in line:
+                        if not line:
+                            break
+                        email_content += line
+
+                        # Check if we reached the end of the email
+                        if email_content.endswith(b'\r\n.\r\n'):
                             break
 
-                    # Decode the email body
-                    body = BytesParser().parsebytes(body_text)
+                    # Convert email_content to string for processing
+                    email_content_str = email_content.decode()
 
-                    # Print email headers and body
-                    print(f"Email {i} - Subject: {subject}, From: {from_address}, To: {to_address}")
-                    if bcc_address:
-                        print(f"Bcc: {bcc_address}")
-                    print("Body:")
-                    print(body.get_payload(decode=True).decode())
+                    # Check for Bcc field containing the username
+                    if 'Bcc:' in email_content_str:
+                        bcc_start_index = email_content_str.index('Bcc:') + 4
+                        bcc_end_index = email_content_str.find('\r\n', bcc_start_index)
+                        bcc_field = email_content_str[bcc_start_index:bcc_end_index]
+
+                        # Check if username is in the Bcc field
+                        if username in bcc_field:
+                            print(f"Username '{username}' found in Bcc field of Email {i}.")
+                            send_email(username, password, username, '', 'You have have been Bcc', f"Username '{username}' found in Bcc field of Email {i}.")
 
                 # Quit session
                 ssock.sendall(b"QUIT\r\n")
@@ -98,9 +72,11 @@ def retrieve_email_headers(username, password, host):
         print(f"Error occurred: {e}")
 
 if __name__ == "__main__":
-    # Replace these credentials with your own
     username = "u21459640@tuks.co.za"
     password = "glun ydwp hpmb zfaj"
     host = "pop.gmail.com"
 
-    retrieve_email_headers(username, password, host)
+    while True:
+        read_email(username, password, host)
+        #sleep for 10 seconds
+        time.sleep(10)
