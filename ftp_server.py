@@ -36,7 +36,7 @@ def login(ftp_socket):
         return False
     return True
 
-def download_file(ftp_socket, file_path):
+def download_file_from_server(ftp_socket, file_path):
     ftp_socket.sendall('PASV\r\n'.encode())
     response = ftp_socket.recv(1024).decode()
     
@@ -90,14 +90,14 @@ def main():
 
             if local_file_hash != good_file_hash:
                 print("Local file has been modified. Restoring from server...")
-                if download_file(ftp_socket, REMOTE_FILE_PATH):
+                if download_file_from_server(ftp_socket, REMOTE_FILE_PATH):
                     print("File restored successfully.")
                 else:
                     print("Failed to restore file from server.")
             else: print("Local file looks good!")
         else:
             print("Local file is missing. Restoring from server...")
-            if download_file(ftp_socket, REMOTE_FILE_PATH):
+            if download_file_from_server(ftp_socket, REMOTE_FILE_PATH):
                 print("File restored successfully.")
             else:
                 print("Failed to restore file from server.")
