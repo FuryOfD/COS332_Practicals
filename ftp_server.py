@@ -7,13 +7,12 @@ import configparser
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-LOCAL_FILE_PATH = config['DEFAULT']['LocalFilePath']
-REMOTE_FILE_PATH = config['DEFAULT']['RemoteFilePath']
-SERVER_IP = config['DEFAULT']['ServerIP']
-SERVER_PORT = int(config['DEFAULT']['ServerPort'])
-SERVER_USERNAME = config['DEFAULT']['Username']
-SERVER_PASSWORD = config['DEFAULT']['Password']
-POLLING_INTERVAL = int(config['DEFAULT']['PollingInterval'])
+LOCAL_FILE_PATH = "my_file.txt"
+REMOTE_FILE_PATH = "server_file.txt"
+SERVER_IP = "127.0.0.1"
+SERVER_PORT = 21
+SERVER_USERNAME = "ruan"
+SERVER_PASSWORD = "password"
 
 def connect_to_ftp_server():
     ftp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -88,6 +87,7 @@ def main():
         if os.path.exists(LOCAL_FILE_PATH):
             local_file_hash = calculate_file_hash(LOCAL_FILE_PATH)
             good_file_hash = calculate_file_hash(REMOTE_FILE_PATH)
+
             if local_file_hash != good_file_hash:
                 print("Local file has been modified. Restoring from server...")
                 if download_file(ftp_socket, REMOTE_FILE_PATH):
@@ -102,7 +102,7 @@ def main():
             else:
                 print("Failed to restore file from server.")
 
-        time.sleep(POLLING_INTERVAL) 
+        time.sleep(5) 
 
 if __name__ == "__main__":
     main()
