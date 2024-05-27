@@ -3,7 +3,7 @@ import threading
 import ssl
 
 # Configuration
-LOCAL_HOST = 'localhost'
+LOCAL_HOST = '127.0.0.1'
 LOCAL_PORT = 55555
 REMOTE_HOST = 'pop.gmail.com'
 REMOTE_PORT = 995
@@ -33,20 +33,23 @@ def handle_client(client_socket):
         # Receive greeting from remote server
         greeting = remote_socket.recv(4096)
         client_socket.send(greeting)
-        print("[INFO] Sent greeting to client")
+        print(f"[INFO] Sent greeting to client: {greeting.strip()}")
 
         # Authentication phase
         user_authenticated = False
 
         while not user_authenticated:
-            data = client_socket.recv(4096).decode()
+            data = client_socket.recv(4096)
             print(f"[DEBUG] Received from client: {data.strip()}")
-            if data.startswith('USER'):
+            data = data.decode()
+            if data.upper().startswith('USER'):
                 username = data.split()[1]
                 client_socket.send(b'+OK send your password\r\n')
                 print(f"[INFO] Requested password for username: {username}")
-                password_data = client_socket.recv(4096).decode()
-                if password_data.startswith('PASS'):
+                password_data = client_socket.recv(4096)
+                print(f"[DEBUG] Received from client: {password_data.strip()}")
+                password_data = password_data.decode()
+                if password_data.upper().startswith('PASS'):
                     password = password_data.split()[1]
                     if username in USER_CREDENTIALS and USER_CREDENTIALS[username] == password:
                         # Authenticate with real credentials to the remote server
@@ -125,4 +128,3 @@ def start_proxy():
 
 if __name__ == "__main__":
     start_proxy()
-    
