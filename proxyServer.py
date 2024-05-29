@@ -1,6 +1,7 @@
 import socket
 import ssl
 import threading
+from smtp import sendEmail
 
 
 # Local credentials for employees
@@ -17,25 +18,25 @@ REAL_PASSWORD = 'brmo nosk unmr zglg'
 def pop3_connect_and_authenticate():
     try:
         context = ssl.create_default_context()
-        with socket.create_connection(('pop.gmail.com', 995)) as sock:
-            with context.wrap_socket(sock, server_hostname='pop.gmail.com') as ssock:
-                print("[INFO] Connected to remote POP3 server with SSL/TLS")
-                greeting = ssock.recv(1024).decode()
-                print(f"[DEBUG] Server greeting: {greeting.strip()}")
+        sock = socket.create_connection(('pop.gmail.com', 995))
+        ssock = context.wrap_socket(sock, server_hostname='pop.gmail.com')
+        print("[INFO] Connected to remote POP3 server with SSL/TLS")
+        greeting = ssock.recv(1024).decode()
+        print(f"[DEBUG] Server greeting: {greeting.strip()}")
 
-                ssock.sendall(f"USER {REAL_USERNAME}\r\n".encode())
-                response = ssock.recv(1024).decode()
-                print(f"[DEBUG] Sent USER command, received: {response.strip()}")
-                if not response.startswith('+OK'):
-                    return False, ssock, "Invalid USER command response from remote server."
+        ssock.sendall(f"USER {REAL_USERNAME}\r\n".encode())
+        response = ssock.recv(1024).decode()
+        print(f"[DEBUG] Sent USER command, received: {response.strip()}")
+        if not response.startswith('+OK'):
+            return False, ssock, "Invalid USER command response from remote server."
 
-                ssock.sendall(f"PASS {REAL_PASSWORD}\r\n".encode())
-                response = ssock.recv(1024).decode()
-                print(f"[DEBUG] Sent PASS command, received: {response.strip()}")
-                if not response.startswith('+OK'):
-                    return False, ssock, "Invalid PASS command response from remote server."
+        ssock.sendall(f"PASS {REAL_PASSWORD}\r\n".encode())
+        response = ssock.recv(1024).decode()
+        print(f"[DEBUG] Sent PASS command, received: {response.strip()}")
+        if not response.startswith('+OK'):
+            return False, ssock, "Invalid PASS command response from remote server."
 
-                return True, ssock, None
+        return True, ssock, None
 
     except Exception as e:
         return False, None, f"[ERROR] {e}"
@@ -76,7 +77,39 @@ def handle_client(client_socket):
                             if authenticated:
                                 client_socket.send(b'+OK Proxy authentication successful\r\n')
                                 print("[INFO] Proxy authentication successful")
-                                # Relay messages between client and remote server
+
+                                # Begin retrieving emails
+                                client_socket.send(b'+OK Retrieving emails\r\n')
+
+                                # Retrieve emails from the remote server
+                                remote_socket.sendall(b'LIST\r\n')
+                                response = remote_socket.recv(1024).decode()
+                                print(f"[DEBUG] Received from remote server: {response.strip()}")
+                                client_socket.sendall(response.encode())
+
+                                #retrieve the most recent email
+                                remote_socket.sendall(b'RETR 1\r\n')
+                                response = remote_socket.recv(1024).decode()
+                                print(f"[DEBUG] Received from remote server: {response.strip()}")
+                                
+                                # getting the subject, sender and the message, and message from the email
+                                subject = response.split("Subject: ")[1].split("\r\n")[0]
+                                sender = response.split("From: ")[1].split("\r\n")[0]
+                                message = response.split("\r\n\r\n")[1].split("\r\n.\r\n")[0]
+                                
+                                # Sending subject, sender and message to the client
+                                client_socket.sendall(f"Subject: {subject}\r\n".encode())
+                                client_socket.sendall(f"From: {sender}\r\n".encode())
+                                client_socket.sendall(f"{message}\r\n".encode())
+                                
+                                
+
+                                remote_socket.sendall(b'QUIT\r\n')
+                                response = remote_socket.recv(1024).decode()
+                                print(f"[DEBUG] Received from remote server: {response.strip()}")
+                                client_socket.sendall(response.encode())
+
+                                # Relay loop
                                 while True:
                                     client_data = client_socket.recv(1024)
                                     if not client_data:
@@ -86,6 +119,8 @@ def handle_client(client_socket):
                                     if not remote_data:
                                         break
                                     client_socket.sendall(remote_data)
+
+                                break
                             else:
                                 client_socket.send(f'-ERR {error}\r\n'.encode())
                                 break
@@ -119,4 +154,7 @@ def start_proxy_server(host='127.0.0.1', port=1100):
         client_handler.start()
 
 if __name__ == "__main__":
+    # Sending emails to coparate email
+    sendEmail(REAL_USERNAME, "Sending to coparate email", "This is a test email to check the proxy server")
+    
     start_proxy_server()
