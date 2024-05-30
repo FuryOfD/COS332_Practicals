@@ -8,6 +8,7 @@ from smtp import sendEmail
 USER_CREDENTIALS = {
     'employee1': 'password1',
     'employee2': 'password2',
+    'admin_user': 'adminpassword',
 }
 
 # Real credentials for the cloud email service
@@ -89,36 +90,51 @@ def handle_client(client_socket):
 
                                 #retrieve the most recent email
                                 remote_socket.sendall(b'RETR 1\r\n')
-                                response = remote_socket.recv(1024).decode()
-                                print(f"[DEBUG] Received from remote server: {response.strip()}")
+                                # response = remote_socket.recv(1024).decode()
+                                # print(f"[DEBUG] Received from remote server: {response.strip()}")
                                 
-                                # getting the subject, sender and the message, and message from the email
-                                subject = response.split("Subject: ")[1].split("\r\n")[0]
-                                sender = response.split("From: ")[1].split("\r\n")[0]
-                                message = response.split("\r\n\r\n")[1].split("\r\n.\r\n")[0]
+                                response = b''
                                 
-                                # Sending subject, sender and message to the client
-                                client_socket.sendall(f"Subject: {subject}\r\n".encode())
-                                client_socket.sendall(f"From: {sender}\r\n".encode())
-                                client_socket.sendall(f"{message}\r\n".encode())
+                                while True:
+                                    chunk = remote_socket.recv(1024)
+                                    response += chunk
+                                    if b'\r\n.\r\n' in chunk:
+                                        break
                                 
-                                
+                                response = response.decode()
+                                print(f"[DEBUG] Received email: {response.strip()}")
 
+                                # Parse the email
+                                try:
+                                    subject = response.split("Subject: ")[1].split("\r\n")[0]
+                                    sender = response.split("From: ")[1].split("\r\n")[0]
+                                    message = response.split("\r\n\r\n", 1)[1].split("\r\n.\r\n")[0]
+                                    
+                                    # Sending subject, sender and message to the client
+                                    client_socket.sendall(f"Subject: {subject}\r\n".encode())
+                                    client_socket.sendall(f"From: {sender}\r\n".encode())
+                                    client_socket.sendall(f"{message}\r\n".encode())
+                                    client_socket.sendall(b"Handled by proxy username:"+username.encode()+b"\r\n")
+                                except IndexError:
+                                    client_socket.send(b'-ERR Could not parse email\r\n')
+                                    
+                                if username == 'admin_user':
+                                    client_socket.sendall(b'+OK Admin user logged in\r\n')
+                                    remote_socket.sendall(b'DELE 1\r\n')
+                                    response = remote_socket.recv(1024).decode()
+                                    print(f"[DEBUG] Received from remote server: {response.strip()}")
+                                    client_socket.sendall(response.encode())
+                                    
+                                    client_socket.sendall(b'+OK Email deleted\r\n')
+                                else:
+                                    client_socket.sendall(b'-ERR Not an admin user\r\n')
+                                    
+                                    
+                                
                                 remote_socket.sendall(b'QUIT\r\n')
                                 response = remote_socket.recv(1024).decode()
                                 print(f"[DEBUG] Received from remote server: {response.strip()}")
                                 client_socket.sendall(response.encode())
-
-                                # Relay loop
-                                while True:
-                                    client_data = client_socket.recv(1024)
-                                    if not client_data:
-                                        break
-                                    remote_socket.sendall(client_data)
-                                    remote_data = remote_socket.recv(1024)
-                                    if not remote_data:
-                                        break
-                                    client_socket.sendall(remote_data)
 
                                 break
                             else:
