@@ -4,6 +4,7 @@ import base64
 
 sender_email = "ruanrossouw58@gmail.com"
 password = "lmst ztsm rflu udks"
+REAL_USERNAME = 'work.dharsh@gmail.com'
 
 def sendEmail(receiver_email, subject, message):
     server = "smtp.gmail.com"
@@ -99,3 +100,7 @@ def sendEmail(receiver_email, subject, message):
             print("Failed to send email")
         else:
             print("Email sent successfully")
+            
+            
+sendEmail(REAL_USERNAME, "Sending to coparate email", "This is a test email to check the proxy server")
+    

@@ -7,7 +7,6 @@ from smtp import sendEmail
 # Local credentials for employees
 USER_CREDENTIALS = {
     'employee1': 'password1',
-    'employee2': 'password2',
     'admin_user': 'adminpassword',
 }
 
@@ -102,7 +101,7 @@ def handle_client(client_socket):
                                         break
                                 
                                 response = response.decode()
-                                print(f"[DEBUG] Received email: {response.strip()}")
+                                print(f"[DEBUG] Received email")
 
                                 # Parse the email
                                 try:
