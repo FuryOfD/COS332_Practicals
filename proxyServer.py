@@ -11,8 +11,8 @@ USER_CREDENTIALS = {
 }
 
 # Real credentials for the cloud email service
-REAL_USERNAME = 'work.dharsh@gmail.com'
-REAL_PASSWORD = 'brmo nosk unmr zglg'
+REAL_USERNAME = "insert email here"
+REAL_PASSWORD = "app password from Google"
 
 # Function to connect and authenticate with the real POP3 server - Gmail
 def pop3_connect_and_authenticate():
