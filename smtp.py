@@ -2,8 +2,8 @@ import socket
 import ssl
 import base64
 
-sender_email = "ruanrossouw58@gmail.com"
-password = "lmst ztsm rflu udks"
+sender_email = "insert email here"
+password = "app password from Google"
 REAL_USERNAME = 'work.dharsh@gmail.com'
 
 def sendEmail(receiver_email, subject, message):
