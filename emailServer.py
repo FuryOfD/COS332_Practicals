@@ -32,8 +32,8 @@ def send_email(sender_email, password, receiver_email, bcc_email, subject, messa
         print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    sender_email = "ruanrossouw58@gmail.com"
-    password = "lmst ztsm rflu udks"
+    sender_email = "insert email here"
+    password = "app password from Google"
     receiver_email = 'ruan@ufcons.com'
     bcc_email = 'u21459640@tuks.co.za'
 
