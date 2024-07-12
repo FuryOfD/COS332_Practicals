@@ -160,8 +160,8 @@ class QuizHandler:
             # Decode the URL-encoded email address
             receiver_email = urllib.parse.unquote(parsed_body['email'])
 
-            sender_email = "ruanrossouw58@gmail.com"
-            password = "lmst ztsm rflu udks"
+            sender_email = "insert your email here"
+            password = "password was from the app password from Google"
             subject = "COS 332 Assignment 6"
             message = f"Quiz results: Correct answers: {QuizHandler.emailCorrect} out of {QuizHandler.emailTotal}"
 
